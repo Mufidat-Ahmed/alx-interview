@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 """Pascal Triangle Interview Challenge"""
 
+
 def pascal_triangle(n):
-    """Returns a list of lists of integers representing Pascal's Triangle up to n rows."""
+    """Returns a list of integers representing
+    Pascal's Triangle up to n rows."""
     if n <= 0:
         return []
 
