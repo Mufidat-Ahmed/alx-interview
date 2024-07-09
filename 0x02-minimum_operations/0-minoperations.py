@@ -10,15 +10,15 @@ def minOperations(n):
         Integer : if n is impossible to achieve, return 0
         """
     if n <= 1:
-        return 0
-    
+        return
+
     operations = 0
     factor = 2
-    
+
     while n > 1:
         while n % factor == 0:
             operations += factor
             n //= factor
         factor += 1
-    
+
     return operations
