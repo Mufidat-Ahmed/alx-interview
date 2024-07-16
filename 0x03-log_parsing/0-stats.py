@@ -5,48 +5,32 @@ import sys
 import signal
 
 total_size = 0
-status_codes = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
-line_count = 0
-
-signal.signal(signal.SIGINT, signal_handler)
+stat_code = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
+count = 0
 
 try:
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            break
-        
-        parts = line.split()
-        if len(parts) < 7:
-            continue
-        
-        ip_address = parts[0]
-        date = parts[3][1:] + ' ' + parts[4][:-1]
-        request = parts[5] + ' ' + parts[6] + ' ' + parts[7]
-        status_code = parts[-2]
-        file_size = parts[-1]
-        
-        # Validate the input format
-        if request != '"GET /projects/260 HTTP/1.1"':
-            continue
-        if not status_code.isdigit():
-            continue
-        if not file_size.isdigit():
-            continue
-        
-        status_code = int(status_code)
-        file_size = int(file_size)
-        
-        # Update metrics
-        total_size += file_size
-        if status_code in status_codes:
-            status_codes[status_code] += 1
-        
-        line_count += 1
-        
-        # Print stats after every 10 lines
-        if line_count % 10 == 0:
-            print_stats()
+    for line in sys.stdin:
+        line_list = line.split(" ")
+        if len(line_list) > 4:
+            code = line_list[-2]
+            size = int(line_list[-1])
+            if code in stat_code.keys():
+                stat_code[code] += 1
+            total_size += size
+            count += 1
 
-except Exception as e:
-    print("Error: {}".format(e))
+        if count == 10:
+            count = 0
+            print('File size: {}'.format(total_size))
+            for key, value in sorted(stat_code.items()):
+                if value != 0:
+                    print('{}: {}'.format(key, value))
+
+except Exception as err:
+    pass
+
+finally:
+    print('File size: {}'.format(total_size))
+    for key, value in sorted(stat_code.items()):
+        if value != 0:
+            print('{}: {}'.format(key, value))
