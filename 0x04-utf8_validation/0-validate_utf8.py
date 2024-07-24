@@ -1,35 +1,29 @@
+#!/usr/bin/python3
+"""
+UTF-8 Validation
+"""
+
+
 def validUTF8(data):
-    # Number of bytes in the current UTF-8 character
-    num_bytes = 0
+    """
+    data: a list of integers
+    Return: True if data is a valid UTF-8
+    encoding, else return False
+    """
+    byte_count = 0
 
-    # Masks to check the significant bits
-    mask1 = 1 << 7  # 10000000
-    mask2 = 1 << 6  # 01000000
-
-    for byte in data:
-        # Get the 8 least significant bits of the byte
-        byte = byte & 0xFF
-        
-        if num_bytes == 0:
-            # Determine the number of bytes in the UTF-8 character
-            mask = 1 << 7
-            while mask & byte:
-                num_bytes += 1
-                mask = mask >> 1
-
-            if num_bytes == 0:
-                # If it's a single byte character (ASCII)
-                continue
-
-            # For UTF-8 characters longer than 4 bytes or 1 byte only which is invalid
-            if num_bytes == 1 or num_bytes > 4:
+    for i in data:
+        if byte_count == 0:
+            if i >> 5 == 0b110 or i >> 5 == 0b1110:
+                byte_count = 1
+            elif i >> 4 == 0b1110:
+                byte_count = 2
+            elif i >> 3 == 0b11110:
+                byte_count = 3
+            elif i >> 7 == 0b1:
                 return False
         else:
-            # For the remaining bytes, they must start with 10xxxxxx
-            if not (byte & mask1 and not (byte & mask2)):
+            if i >> 6 != 0b10:
                 return False
-
-        num_bytes -= 1
-
-    # If we finish processing all bytes, num_bytes should be zero
-    return num_bytes == 0
+            byte_count -= 1
+    return byte_count == 0
